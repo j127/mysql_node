@@ -25,8 +25,8 @@ connection.connect(function (err) {
 
 function getAllMonsters(limit = 100) {
     return new Promise((resolve, reject) => {
-        const sql = `SELECT * FROM monsters LIMIT ${limit}`;
-        connection.query(sql, function (err, results, fields) {
+        const sql = "SELECT * FROM monsters LIMIT ?";
+        connection.query(sql, [limit], function (err, results, fields) {
             if (err) {
                 return reject(err);
             }
