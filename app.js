@@ -23,31 +23,38 @@ connection.connect(function (err) {
     console.log(`connected to database`);
 });
 
-function getAllMonsters(limit = 100, callback = console.log) {
-    const sql = `SELECT * FROM monsters LIMIT ${limit}`;
+function getAllMonsters(limit = 100) {
+    return new Promise((resolve, reject) => {
+        const sql = `SELECT * FROM monsters LIMIT ${limit}`;
+        connection.query(sql, function (err, results, fields) {
+            if (err) {
+                return reject(err);
+            }
 
-    return connection.query(sql, function (err, results, fields) {
-        if (err) {
-            throw err;
-        }
-
-        // `callback` is the function you passed in
-        callback(results);
+            return resolve(results);
+        });
     });
 }
 
-function getMonsterById(id, callback = console.log) {
-    const sql = "SELECT *  FROM monsters WHERE id = ?";
-    connection.query(sql, [id], function (err, results, fields) {
-        if (err) {
-            throw err;
-        }
+function getMonsterById(id) {
+    return new Promise((resolve, reject) => {
+        const sql = "SELECT * FROM monsters WHERE id = ?";
+        connection.query(sql, [id], function (err, results, fields) {
+            if (err) {
+                return reject(err);
+            }
 
-        callback(results);
+            return resolve(results);
+        });
     });
 }
 
-getAllMonsters();
-getMonsterById(2);
+getAllMonsters()
+    .then(data => console.log("all monsters", data))
+    .catch(err => console.error(err));
+
+getMonsterById(2)
+    .then(data => console.log("monster #2", data))
+    .catch(err => console.error(err));
 
 connection.end();
