@@ -10,6 +10,7 @@ const pool = mysql.createPool({
     database: process.env.MYSQL_DB,
 });
 
+// by default limit it to 100 results
 function getAllMonsters(limit = 100) {
     return new Promise((resolve, reject) => {
         const sql = `SELECT * FROM monsters LIMIT ${limit}`;
@@ -53,7 +54,7 @@ function searchMonsterByName(keyword) {
     });
 }
 
-// Export the functions so other modules can use them
+// Export the functions so other modules/files can use them
 module.exports = {
     getAllMonsters,
     getMonsterById,

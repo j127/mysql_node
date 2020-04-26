@@ -11,7 +11,7 @@ const PORT = 3333;
 // Routes //
 ////////////
 
-// home page
+// The home page lists some available URLs.
 app.get("/", (req, res) => {
     res.json({
         urls: {
@@ -47,6 +47,7 @@ app.get("/api/:id", (req, res) => {
         .catch(err => res.status(500).json(error));
 });
 
+// Search the database by monster name
 app.get("/api/search/:keyword", (req, res) => {
     const keyword = req.params.keyword;
     db.searchMonsterByName(keyword)
