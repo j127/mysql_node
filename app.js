@@ -1,53 +1,57 @@
 // This loads the settings from your `.env` file.
 require("dotenv").config();
+const express = require("express");
+const db = require("./db/database");
 
-// This imports the mysql library
-const mysql = require("mysql");
+const app = express();
 
-// Prepare to connect to MySQL with your secret environment variables
-const connection = mysql.createConnection({
-    connectionLimit: 10,
-    host: process.env.MYSQL,
-    user: process.env.MYSQL_USER,
-    password: process.env.MYSQL_PASSWORD,
-    database: process.env.MYSQL_DB,
+const PORT = 3333;
+
+////////////
+// Routes //
+////////////
+
+// home page
+app.get("/", (req, res) => {
+    res.json({
+        urls: {
+            get_all: `localhost:${PORT}/api`,
+            get_1: `localhost:${PORT}/api/1`,
+            get_a_different_one: `localhost:${PORT}/api/2`,
+            search: `localhost:${PORT}/search/beh`,
+            search: `localhost:${PORT}/search/r`,
+        },
+    });
 });
 
-// Make the connection
-connection.connect(function (err) {
-    if (err) {
-        console.log("connection error", err.stack);
-        return;
-    }
-
-    console.log(`connected to database`);
+// list all monsters
+app.get("/api", (req, res) => {
+    db.getAllMonsters()
+        .then(data => res.json(data))
+        .catch(err => res.status(500).json(err));
 });
 
-function getAllMonsters(limit = 100, callback = console.log) {
-    const sql = `SELECT * FROM monsters LIMIT ${limit}`;
+// get a monster by ID (1, 2, or 3)
+app.get("/api/:id", (req, res) => {
+    const id = req.params.id;
 
-    return connection.query(sql, function (err, results, fields) {
-        if (err) {
-            throw err;
-        }
+    db.getMonsterById(id)
+        .then(data => {
+            if (data.length > 0) {
+                console.log("data", data);
+                res.json(data);
+            } else {
+                res.status(404).json({ message: "Not Found" });
+            }
+        })
+        .catch(err => res.status(500).json(error));
+});
 
-        // `callback` is the function you passed in
-        callback(results);
-    });
-}
+app.get("/api/search/:keyword", (req, res) => {
+    const keyword = req.params.keyword;
+    db.searchMonsterByName(keyword)
+        .then(data => res.json(data))
+        .catch(err => res.status(500).json(err));
+});
 
-function getMonsterById(id, callback = console.log) {
-    const sql = "SELECT *  FROM monsters WHERE id = ?";
-    connection.query(sql, [id], function (err, results, fields) {
-        if (err) {
-            throw err;
-        }
-
-        callback(results);
-    });
-}
-
-getAllMonsters();
-getMonsterById(2);
-
-connection.end();
+app.listen(PORT, () => console.log(`listening at http://localhost:${PORT}`));
