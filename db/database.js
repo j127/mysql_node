@@ -13,8 +13,8 @@ const pool = mysql.createPool({
 // by default limit it to 100 results
 function getAllMonsters(limit = 100) {
     return new Promise((resolve, reject) => {
-        const sql = `SELECT * FROM monsters LIMIT ${limit}`;
-        pool.query(sql, function (err, results, fields) {
+        const sql = `SELECT * FROM monsters LIMIT ?`;
+        pool.query(sql, [limit], function (err, results, fields) {
             if (err) {
                 return reject(err);
             }
